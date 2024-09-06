@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>JSON to CSV Converter</title>
+</head>
+<body>
+    <h1>JSON to CSV Converter</h1>
+    <input type="file" id="jsonFile" />
+    <button onclick="convertJSONtoCSV()">Convert to CSV</button>
+    <a id="downloadLink" style="display:none;">Download CSV</a>
+
+    <script>
+        function convertJSONtoCSV() {
+            const fileInput = document.getElementById('jsonFile');
+            const file = fileInput.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(event) {
+                    const jsonData = JSON.parse(event.target.result);
+                    const csvData = jsonToCsv(jsonData);
+                    downloadCsv(csvData, 'output.csv');
+                };
+                reader.readAsText(file);
+            } else {
+                alert('Please select a JSON file.');
+            }
+        }
+
+        function jsonToCsv(jsonData) {
+            const headers = Object.keys(jsonData[0]).join(',');
+            const rows = jsonData.map(row => Object.values(row).join(','));
+            return [headers, ...rows].join('\n');
+        }
+
+        function downloadCsv(csvData, filename) {
+            const blob = new Blob([csvData], { type: 'text/csv' });
+            const link = document.getElementById('downloadLink');
+            link.href = URL.createObjectURL(blob);
+            link.download = filename;
+            link.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
