@@ -19,13 +19,28 @@
             if (file) {
                 const reader = new FileReader();
                 reader.onload = function(event) {
-                    const jsonData = JSON.parse(event.target.result);
-                    const csvData = jsonToCsv(jsonData);
-                    downloadCsv(csvData, 'output.csv');
+                    try {
+                        const fileContent = event.target.result;
+                        console.log("File content:", fileContent); // Выводим содержимое файла для проверки
+                        
+                        // Попытка парсинга JSON
+                        const jsonData = JSON.parse(fileContent);
+                        console.log("Parsed JSON:", jsonData); // Выводим распарсенные данные
+
+                        if (Array.isArray(jsonData) && jsonData.length > 0) {
+                            const csvData = jsonToCsv(jsonData);
+                            downloadCsv(csvData, 'output.csv');
+                        } else {
+                            alert("JSON файл пуст или не содержит массив объектов.");
+                        }
+                    } catch (error) {
+                        console.error("Ошибка при парсинге JSON:", error);
+                        alert("Ошибка при чтении файла JSON. Убедитесь, что файл имеет корректный формат.");
+                    }
                 };
                 reader.readAsText(file);
             } else {
-                alert('Please select a JSON file.');
+                alert('Пожалуйста, выберите JSON файл.');
             }
         }
 
@@ -35,13 +50,4 @@
             return [headers, ...rows].join('\n');
         }
 
-        function downloadCsv(csvData, filename) {
-            const blob = new Blob([csvData], { type: 'text/csv' });
-            const link = document.getElementById('downloadLink');
-            link.href = URL.createObjectURL(blob);
-            link.download = filename;
-            link.style.display = 'block';
-        }
-    </script>
-</body>
-</html>
+        function downloadCsv(csvData, filename
